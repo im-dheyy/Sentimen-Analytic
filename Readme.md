@@ -1,6 +1,6 @@
 # 📄 Laporan Proyek: Sistem Rekomendasi Buku
 
-## 1. Judul & Identitas
+## Judul & Identitas
 
 **Judul:** Book Recommendation System
 **Nama:** Deawi Guna Pratiwi
@@ -10,7 +10,7 @@
 
 ---
 
-## 2. 🏢 Proyek Overview
+## 1. 🏢 Project Overview
 
 Di era digital, informasi buku yang melimpah justru menjadi tantangan bagi pembaca dalam menemukan bacaan yang sesuai dengan preferensi mereka. Oleh karena itu, diperlukan sebuah sistem rekomendasi buku yang mampu menyarankan judul-judul yang relevan secara personal.
 
@@ -24,7 +24,7 @@ Tujuan proyek ini:
 
 ---
 
-## 3. 🔍 Business Understanding
+## 2. 🔍 Business Understanding
 
 ### 🔎 Problem Statements
 
@@ -46,72 +46,125 @@ Tujuan proyek ini:
 
 ---
 
-## 4. 📊 Data Understanding
+## 3. 📊 Data Understanding
 
-Dataset terdiri dari file "Preprocessed\_data.csv" yang telah dibersihkan. Beberapa fitur penting:
+Dataset yang digunakan adalah hasil pembersihan awal dengan nama **Preprocessed\_data.csv**. Dataset ini merupakan hasil dari penggabungan dan pembersihan beberapa file mentah dari Kaggle: [Book-Crossing Dataset](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset).
 
-* `book_title`, `Summary`, `Category`, `publisher` (fitur konten buku).
-* `user_id`, `age`, `location` (informasi pengguna).
-* `rating` (interaksi pengguna).
+### Struktur Dataset Preprocessed:
 
-Total data awal: **1.031.175 baris**, 19 kolom.
+Dataset `Preprocessed_data.csv` merupakan gabungan awal dari tiga file mentah berikut:
 
-Langkah awal:
+* Metadata buku (`BX-Books.csv`)
+* Data pengguna (`BX-Users.csv`)
+* Data interaksi (`BX-Book-Ratings.csv`)
 
-* Menghapus kolom tidak relevan (`Unnamed: 0`).
-* Membersihkan nilai outlier pada usia (<10 atau >90).
-* Mengimputasi tahun publikasi yang tidak valid.
-* Parsing kategori dari string menjadi list.
-* Menghapus ringkasan yang tidak valid dan entri duplikat.
+**Ukuran Dataset Awal:**
+
+* Total baris: 1.031.175
+* Total kolom: 19
+
+**Kondisi Awal Dataset:**
+
+* Dataset masih mengandung nilai aneh dan format yang belum terstandardisasi.
+* Kolom `year_of_publication` masih bertipe string dan memuat nilai tidak logis (seperti 0 atau >2025).
+* Kolom `Category` masih berupa string literal dari list, misalnya `'[Fiction]'`.
+* Beberapa ringkasan (`Summary`) memiliki nilai tidak valid (seperti angka '9') atau terlalu pendek.
+* Terdapat entri duplikat yang belum dibersihkan berdasarkan kombinasi judul dan penerbit.
+
+**Jumlah Missing Values:**
+
+```
+user_id                     0
+location                   0
+age                        0
+isbn                       0
+rating                     0
+book_title                 0
+book_author                1
+year_of_publication        0
+publisher                  0
+img_s                      0
+img_m                      0
+img_l                      0
+Summary                    0
+Language                   0
+Category                   0
+city                   14095
+state                  22767
+country                35365
+```
+
+**Kolom yang digunakan:**
+
+* `user_id`, `book_title`, `Summary`, `Category`, `publisher`, `year_of_publication`, `Language`, `rating`, `age`
+
+* `user_id`, `book_title`, `Summary`, `Category`, `publisher`, `year_of_publication`, `Language`, `rating`, `age`
+
+* **Total baris mentah:** 1.031.175 interaksi rating.
+
+* **Missing values:** ditemukan pada kolom `age`, `publisher`, dan `Summary`.
+
+* **Outliers:** nilai umur <10 dan >90 dianggap outlier dan dibersihkan.
+
+* **Duplikasi:** data duplikat dihapus berdasarkan ISBN dan user\_id.
+
+### Penjelasan Fitur:
+
+| Nama Fitur            | Deskripsi             | Status                                       |
+| --------------------- | --------------------- | -------------------------------------------- |
+| `user_id`             | ID pengguna unik      | Digunakan                                    |
+| `location`            | Lokasi pengguna       | Tidak digunakan (informasi terlalu granular) |
+| `age`                 | Umur pengguna         | Digunakan (outlier dibersihkan)              |
+| `isbn`                | ISBN buku             | Digunakan sebagai identitas unik             |
+| `book_title`          | Judul buku            | Digunakan                                    |
+| `book_author`         | Penulis               | Tidak digunakan                              |
+| `year_of_publication` | Tahun terbit          | Digunakan (beberapa nilai dibersihkan)       |
+| `publisher`           | Penerbit              | Digunakan                                    |
+| `Summary`             | Ringkasan konten buku | Digunakan                                    |
+| `Category`            | Kategori buku         | Digunakan                                    |
+| `Language`            | Bahasa buku           | Digunakan (nilai anomali dihapus)            |
+| `rating`              | Rating user           | Digunakan untuk validasi relevansi           |
 
 ---
 
-## 📊 EDA (Exploratory Data Analysis)
+## 4. 🧹 Data Preparation
 
-### 1. Distribusi Rating
+### Langkah-Langkah:
 
-* Mayoritas rating adalah **0** (rating kosong/implisit).
-* Rating eksplisit cenderung bernilai tinggi (7–10).
-![Distribusi Nilai Rating](https://github.com/im-dheyy/Sentimen-Analytic/raw/main/Gambar/distribusinilairating.png)
+1. **Menghapus kolom tidak relevan:** seperti `Unnamed: 0` dan URL gambar.
+2. **Handling missing values:**
 
-### 2. Buku dengan Rating Terbanyak
+   * Kolom `Summary` dan `Category` yang kosong dihapus.
+   * Tahun publikasi dengan nilai aneh ("0", "nan", dst) disesuaikan jika memungkinkan.
+3. **Handling outlier:**
 
-* Buku seperti *Wild Animus*, *The Lovely Bones*, dan *The Da Vinci Code* paling banyak dirating.
-![Top 10 Buku dengan Rating Terbanyak](https://github.com/im-dheyy/Sentimen-Analytic/raw/main/Gambar/top10bukudenganratingterbanyak.png)
+   * Umur <10 atau >90 dihapus.
+4. **Encoding fitur teks:**
 
+   * Menggabungkan kolom `book_title`, `Summary`, `Category`, dan `publisher` ke kolom baru `combined`.
+   * Melakukan **feature extraction** menggunakan **TF-IDF Vectorizer** terhadap kolom `combined`.
 
-### 3. Distribusi Usia Pengguna
-
-* Dominasi pengguna pada rentang usia 30–40 tahun.
-![Distribusi Usia Pengguna](https://github.com/im-dheyy/Sentimen-Analytic/raw/main/Gambar/distribusiusiapengguna.png)
-
-### 4. Bahasa Buku Terpopuler
-
-* Mayoritas buku berbahasa Inggris (`en`).
-* Terdapat nilai anomali seperti "9" pada kolom bahasa.
-![Top 10 Bahasa Buku Terpopuler](https://github.com/im-dheyy/Sentimen-Analytic/raw/main/Gambar/top10bahasabukuterpopuler.png)
-
-### 5. Kategori Buku Terpopuler
-
-* Kategori "Fiction" mendominasi.
-* Diikuti oleh "Juvenile Fiction", "Biography", dll
-![Top 10 Kategori Buku](https://github.com/im-dheyy/Sentimen-Analytic/blob/raw/main/Gambar/top10kategoribuku.png)
+Dengan langkah ini, seluruh fitur yang digunakan dalam pemodelan sudah dalam format numerik yang bisa digunakan oleh algoritma machine learning.
 
 ---
 
-## 💡 Modelling: Content-Based Filtering
+## 💡 5. Modelling: Content-Based Filtering
 
-### 1. Tahapan Persiapan:
+### 1. Definisi & Cara Kerja Content-Based Filtering
 
-* Menggabungkan fitur teks: `Summary`, `Category`, `book_title`, `publisher` ke dalam 1 kolom `combined`.
-* Menggunakan **TF-IDF Vectorizer** untuk mengubah teks menjadi vektor numerik.
-* Membangun model **NearestNeighbors** dengan metrik cosine similarity.
+Content-based filtering bekerja dengan mencari kemiripan antar item berdasarkan fitur-fitur deskriptif (fitur konten) dari item itu sendiri. Dalam konteks ini, fitur-fitur konten adalah `Summary`, `Category`, `book_title`, dan `publisher`.
 
-### 2. Fungsi Rekomendasi:
+### 2. Algoritma yang Digunakan
 
-Fungsi `recommend_books_nn(title, top_n)` menerima judul buku sebagai input dan mengembalikan Top-N buku paling mirip.
+* **TF-IDF (Term Frequency-Inverse Document Frequency)**: digunakan untuk mengubah teks mentah menjadi representasi vektor numerik yang menonjolkan kata-kata penting.
+* **Cosine Similarity**: digunakan untuk mengukur seberapa mirip dua vektor teks.
+* **Nearest Neighbors**: digunakan untuk menemukan buku dengan kemiripan tertinggi terhadap buku referensi berdasarkan nilai cosine similarity.
 
-### 3. Contoh Output:
+### 3. Fungsi Rekomendasi:
+
+Fungsi `recommend_books_nn(title, top_n)` menerima judul buku sebagai input dan mengembalikan Top-N buku paling mirip berdasarkan cosine similarity.
+
+### 4. Contoh Output:
 
 **Input**: *The Secret Life of Bees*
 **Rekomendasi**: *Black Boy*, *Midnight Heat*, *Clover*, dll.
@@ -121,39 +174,45 @@ Fungsi `recommend_books_nn(title, top_n)` menerima judul buku sebagai input dan 
 
 ---
 
-## 📊 Evaluasi Sistem Rekomendasi
+## 📊 6. Evaluasi Sistem Rekomendasi
 
-### ✅ 1. Evaluasi Kualitatif
+### Evaluasi Kuantitatif: Precision\@5
 
-* Menggunakan review manual untuk mengevaluasi rekomendasi.
-* Rekomendasi yang dihasilkan **relevan secara tematik dan emosional**.
+Evaluasi dilakukan menggunakan metrik **Precision\@5**, yang mengukur proporsi item relevan di antara 5 item teratas yang direkomendasikan. Evaluasi dilakukan langsung di notebook dengan pendekatan sebagai berikut:
 
-### ✅ 2. Evaluasi Konsistensi (Top-N Overlap)
+```python
+recommended_df = recommend_books_nn("A Painted House", top_n=5)
+recommended_books = recommended_df['book_title'].tolist()
+ground_truth_books = [
+    "A Painted House",
+    "A Painted House (Limited Edition)",
+    "Boy of the Painted Cave",
+    "River of Earth",
+    "The Wedding Dress"
+]
+def precision_at_k(recommendations, ground_truth, k):
+    if not ground_truth:
+        return 0.0
+    recommended_top_k = recommendations[:k]
+    relevant_and_recommended = set(recommended_top_k) & set(ground_truth)
+    return len(relevant_and_recommended) / k
+precision = precision_at_k(recommended_books, ground_truth_books, k=5)
+print(f"Precision@5: {precision:.2f}")
+```
 
-* Buku dengan judul mirip (*A Painted House* dan *A Painted House (Limited Edition)*) menghasilkan rekomendasi yang konsisten.
-
-### ✅ 3. Evaluasi Coverage
-
-* Dari lebih dari 1 juta data, tersisa \~96.000 data unik yang siap digunakan untuk sistem rekomendasi.
-
-### ❌ Keterbatasan:
-
-| Aspek                  | Keterangan                                    |
-| ---------------------- | --------------------------------------------- |
-| Tanpa rating eksplisit | Tidak bisa hitung Precision\@K atau Recall\@K |
-| Tidak ada ground truth | Tidak ada label relevansi manual              |
-| Cold-start user        | Tidak mempertimbangkan histori pengguna       |
-
-### 💡 Rekomendasi Lanjutan:
-
-* Bangun model **hybrid** (content + collaborative).
-* Tambahkan **user feedback loop**.
-* Buat dataset validasi untuk uji kuantitatif.
-* Visualisasi sistem ke dalam dashboard interaktif (mis. Streamlit).
+**Hasil:** Precision\@5 = **1.00**, yang berarti seluruh hasil rekomendasi dianggap relevan menurut ground truth. Ini menunjukkan bahwa sistem berhasil merekomendasikan buku yang sesuai secara konten dan judul.
 
 ---
+## 7. Struktur Laporan
+* **1. Project Overview.**
+* **2. Business Understanding**
+* **3. Data Understanding**
+* **4. Data Preparation**
+* **5. Modelling and Results**
+* **6. Evaluation**
+---
 
-## 🔹 Kesimpulan
+## 📍 Kesimpulan
 
 Sistem rekomendasi buku berbasis content-based filtering yang dibangun dalam proyek ini mampu:
 
@@ -165,7 +224,7 @@ Namun, untuk meningkatkan performa dan skalabilitas sistem, disarankan untuk men
 
 ---
 
-## 📅 Referensi
+## 🗓️ Referensi
 
 1. [Book-Crossing Dataset - Kaggle](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset)
 2. Ricci, F., Rokach, L., & Shapira, B. (2011). *Introduction to Recommender Systems Handbook*.
