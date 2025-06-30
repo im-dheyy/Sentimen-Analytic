@@ -20,34 +20,61 @@ Untuk mengatasi permasalahan ini, proyek ini membangun sebuah **sistem rekomenda
 
 ## 3. Business Understanding
 
-Tujuan bisnis dari proyek ini adalah:
+Sistem rekomendasi buku dirancang untuk memberikan nilai tambah secara langsung kepada pengguna platform pembaca buku daring maupun toko buku digital.
 
-* Membantu pengguna menemukan buku yang relevan dan sesuai minat.
-* Meningkatkan pengalaman pengguna dalam menjelajahi koleksi buku.
-* Meningkatkan interaksi dan engagement pengguna terhadap platform penyedia buku.
+### Problem Statement:
 
-### Problem Statements:
+* Pengguna kesulitan menemukan buku yang sesuai dengan minat mereka di tengah banyaknya pilihan.
+* Tidak adanya sistem rekomendasi yang mempertimbangkan konten dan preferensi eksplisit pengguna.
 
-* Bagaimana menyusun sistem rekomendasi berdasarkan minat pengguna?
-* Apa pendekatan terbaik antara content-based dan collaborative filtering?
+### Goals:
+
+* Mengembangkan sistem yang dapat memberikan rekomendasi buku yang relevan berdasarkan preferensi pengguna.
+* Menyediakan solusi yang dapat diimplementasikan untuk cold-start user dan buku baru.
+* Meningkatkan keterlibatan pengguna melalui personalisasi.
+
+### Solution Statement:
+
+* Mengimplementasikan pendekatan Content-Based Filtering berbasis konten buku seperti ringkasan, judul, kategori, dan penerbit.
+* Menyediakan output rekomendasi yang dapat divisualisasikan dan dievaluasi menggunakan metrik yang sesuai seperti Precision\@K dan Recall\@K. untuk mencakup berbagai skenario pengguna.
+* Menyediakan output rekomendasi yang dapat divisualisasikan dan dievaluasi menggunakan metrik yang sesuai seperti Precision\@K dan Recall\@K.
 
 ---
 
 ## 4. Data Understanding
 
-Dataset yang digunakan memiliki 3 bagian utama:
+Dataset ini terdiri dari tiga bagian utama:
 
-* **Books.csv**: informasi tentang buku (ISBN, judul, penulis, publisher, tahun terbit, dll).
-* **Users.csv**: data tentang pengguna (user id, lokasi, usia).
-* **Ratings.csv**: berisi rating pengguna terhadap buku (user id, ISBN, rating).
+* **Books.csv**: Memuat 271.379 entri buku dengan fitur seperti ISBN, judul, penulis, penerbit, tahun terbit, dan kategori.
+* **Users.csv**: Menyediakan 278.858 entri pengguna, termasuk ID, lokasi, dan usia.
+* **Ratings.csv**: Terdiri dari 1.031.175 baris, yang mencatat rating pengguna terhadap buku (rentang 0–10).
 
-### Ringkasan:
+### Cakupan & Kualitas Data:
 
-* Jumlah pengguna: 278.858
-* Jumlah buku: 271.379
-* Jumlah rating: 1.031.175
+* Jumlah fitur: 16 kolom
+* Jumlah data: 1.031.175 baris
 
-Data perlu dibersihkan dari nilai yang hilang, tidak relevan, dan hanya mempertimbangkan rating eksplisit (> 0).
+### Permasalahan Kualitas Data:
+
+* **Missing Values**:
+
+  * Beberapa entri pada usia pengguna dan tahun terbit tidak tersedia.
+* **Outliers**:
+
+  * Usia di bawah 5 tahun dan di atas 100 tahun dianggap sebagai outlier dan dihapus.
+* **Duplikasi**:
+
+  * Ditemukan pada judul dan ISBN yang serupa, dilakukan deduplikasi berdasarkan kombinasi `book_title + publisher + summary`.
+* **Invalid Entries**:
+
+  * Bahasa bertanda '9' diidentifikasi sebagai noise dan dihapus.
+
+### Aksi Pembersihan:
+
+* Menghapus fitur `Unnamed: 0`.
+* Menghapus nilai kosong dan duplikasi.
+* Imputasi nilai usia dengan median.
+* Memfilter hanya rating eksplisit (rating > 0).
 
 ---
 
@@ -123,128 +150,73 @@ Genre fiksi mendominasi isi dataset, sehingga sistem rekomendasi kemungkinan aka
 
 ---
 
-## 6. Content-Based Filtering
 
-Dalam pendekatan Content-Based Filtering, sistem rekomendasi akan memberikan saran buku yang mirip secara konten dengan buku yang pernah disukai pengguna. Fokus utama metode ini adalah menganalisis informasi deskriptif dari setiap item (dalam hal ini, buku) untuk menemukan kemiripan antar buku berdasarkan atribut-atribut berikut:
+## 6. Data Preparation
 
-📖 Summary: Ringkasan isi buku yang menggambarkan topik atau cerita.
+Tahapan data preparation meliputi:
 
-🏷️ Category: Kategori atau genre buku, misalnya [Fiction], [Science], [Biography], dll.
-
-📘 book_title: Judul buku, karena bisa mengandung kata-kata penting terkait isi.
-
-🏢 publisher: Nama penerbit, yang dalam beberapa kasus mengindikasikan genre atau kualitas buku.
-
-
-
-### Langkah-langkah:
-
- 1. Pembersihan dan Filter Data
- - Menghapus entri dengan ringkasan tidak valid ('9')
- - Menghapus entri dengan kategori kosong ([])
- - Menghapus ringkasan yang terlalu pendek (< 30 karakter)
- - Menghapus duplikasi berdasarkan book_title + publisher + Summary
-
- 2. Penggabungan Fitur Teks
- - Menggabungkan kolom Summary, Category, book_title, dan publisher ke kolom 'combined'
- - Ini bertujuan menyatukan informasi penting dalam satu representasi teks yang kaya konten
-
- 3. Penghapusan Duplikasi dan Reset Index
- - Membersihkan data dari duplikasi berdasarkan kolom 'combined'
- - Reset index untuk memastikan baris DataFrame sejajar dengan tfidf_matrix
-
- 4. TF-IDF Vectorization
- - Mengubah data teks pada kolom 'combined' menjadi vektor numerik dengan TfidfVectorizer
- - TF-IDF membantu menekankan kata-kata penting dan menurunkan bobot kata umum
-
- 5. Pelatihan Model Nearest Neighbors
- - Melatih model NearestNeighbors dengan tfidf_matrix
- - Menggunakan cosine similarity untuk mengukur kemiripan antar buku
-
- 6. Pemetaan Judul Buku ke Index
- - Membuat mapping dari judul buku (dalam lowercase) ke index DataFrame
- - Memungkinkan akses langsung ke representasi vektor berdasarkan input judul buku
-
- 📌 Hasil Akhir
- Sistem rekomendasi content-based siap digunakan untuk menyarankan buku yang mirip
- berdasarkan isi dan metadata, tanpa bergantung pada rating pengguna lain.
- Sangat cocok untuk cold-start scenario seperti buku baru yang belum memiliki rating.
-
-## Model and Result
-Menemukan buku-buku yang paling mirip dengan buku input, sehingga bisa memberikan rekomendasi yang relevan secara konten, meskipun belum pernah diberi rating oleh pengguna.
-
-Langkah-Langkah Penjelasan Fungsi:
-1. Fungsi menerima judul buku yang ingin dicari kemiripannya.
-2. Menggunakan TF-IDF untuk mengukur kemiripan konten antar buku.
-3. Model NearestNeighbors digunakan untuk mencari buku dengan vektor TF-IDF paling dekat (mirip).
-4. Mengembalikan beberapa buku yang memiliki konten mirip berdasarkan ringkasan, kategori, judul, dan penerbit.
-
-### Penjelasan Output Rekomendasi: "The Secret Life of Bees"
-
-Hasil dari pemanggilan fungsi `recommend_books_nn("The Secret Life of Bees", top_n=5)` memberikan 5 buku yang direkomendasikan berdasarkan kemiripan konten dengan buku input. Rekomendasi ini dihasilkan dari model content-based filtering yang membandingkan fitur teks gabungan (summary, kategori, judul, dan penerbit).
-
-Berikut adalah penjelasan untuk masing-masing buku hasil rekomendasi:
-
-1. **Black Boy**
-   - **Kategori**: [African American authors]
-   - **Alasan Rekomendasi**: Buku ini memiliki konten naratif yang kuat tentang pengalaman hidup, mirip dengan tema pencarian identitas dalam *The Secret Life of Bees*.
-
-2. **Midnight Heat**
-   - **Kategori**: [Fiction]
-   - **Alasan Rekomendasi**: Novel fiksi dengan elemen emosi kuat dan konflik sosial, cocok dengan pembaca yang menyukai dinamika karakter dan perjuangan batin.
-
-3. **Clover**
-   - **Kategori**: [Fiction]
-   - **Alasan Rekomendasi**: Sama-sama menceritakan hubungan keluarga dan trauma kehilangan, dengan karakter wanita muda sebagai tokoh utama.
-
-4. **LIBRARY OF CLASSIC CHILDREN'S LITERATURE**
-   - **Kategori**: [Juvenile Fiction]
-   - **Alasan Rekomendasi**: Meskipun ditujukan untuk anak-anak, rekomendasi muncul karena kemiripan gaya naratif dan nilai-nilai emosional yang terkandung dalam cerita.
-
-5. **The Secret Life of Bees**
-   - **Kategori**: [Fiction]
-   - **Catatan**: Buku ini sendiri tetap muncul sebagai hasil teratas, karena secara teknis memiliki kemiripan tertinggi dengan dirinya sendiri. Namun hasil akhir hanya menampilkan buku-buku selain buku input, sesuai logika dalam fungsi.
-
-### Kesimpulan
-Rekomendasi yang dihasilkan menunjukkan bahwa sistem dapat mengenali pola naratif, tema emosional, serta atribut tekstual lainnya yang relevan. Hal ini membuktikan bahwa pendekatan content-based cukup efektif meskipun tidak menggunakan data rating pengguna.
-
----
-### 📚 Recommendation Output
-
-#### Judul: *A Painted House*
-
-Berdasarkan pendekatan content-based filtering, sistem memberikan rekomendasi buku yang memiliki kemiripan konten dengan *A Painted House* melalui analisis terhadap *summary*, *category*, *judul*, dan *publisher*. Berikut penjelasan hasil rekomendasinya:
-
-1. **A Painted House (Delta)** — Buku utama dan referensi pencarian. Kisahnya mengangkat tema ketegangan rasial dan cinta terlarang, dengan latar kehidupan petani.
-
-2. **A Painted House (Limited Edition) - Doubleday** — Edisi berbeda dari buku yang sama, tetap relevan karena memiliki isi konten dan cerita serupa.
-
-3. **Boy of the Painted Cave** — Memiliki elemen tematik serupa seperti pembatasan sosial dan perjuangan hidup di masyarakat tertutup, ditulis dalam genre *Juvenile Fiction*.
-
-4. **River of Earth** — Cerita tentang keluarga miskin yang berjuang untuk kehidupan lebih baik, serupa dengan latar ekonomi dan sosial di *A Painted House*.
-
-5. **The Wedding Dress** — Menceritakan potret kehidupan perintis dengan gaya naratif yang mirip, menggambarkan masa lalu dan perjuangan hidup di era tertentu.
-
-#### Kesimpulan:
-Rekomendasi ini menunjukkan bahwa sistem berhasil mengidentifikasi buku-buku dengan kemiripan tema, genre, dan latar suasana, bahkan meskipun judul atau pengarang berbeda. Ini menegaskan keefektifan pendekatan content-based dalam menemukan buku sejenis berdasarkan isi konten, bukan hanya popularitas atau rating pengguna lain.
-
----
----
-
-## 8. Kesimpulan
-
-* Sistem rekomendasi yang dibangun satu pendekatan utama: content-based
-* Content-based cocok untuk pengguna baru atau buku baru (cold-start problem).
-* Kualitas rekomendasi bergantung pada kualitas dan kelengkapan data.
-
-Proyek ini menunjukkan bagaimana pendekatan machine learning dan NLP dapat digunakan untuk menyelesaikan permasalahan nyata dalam domain literasi dan perbukuan.
+* **Dropping Kolom Tidak Relevan**: Kolom seperti `Unnamed: 0` dihapus.
+* **Imputasi Usia**: Menggunakan nilai median untuk menggantikan nilai kosong.
+* **Filter Ringkasan**: Menghapus ringkasan dengan panjang < 30 karakter.
+* **Gabungan Fitur**: Menggabungkan `summary`, `book_title`, `category`, `publisher` menjadi satu kolom `combined`.
+* **Deduplication**: Penghapusan duplikat berdasarkan kolom `combined`.
+* **TF-IDF Vectorization**: Representasi teks ke dalam vektor numerik.
+* **Mapping dan Indexing**: Pemetaan judul ke index untuk efisiensi pencarian.
 
 ---
 
-## 9. Referensi
+## 7. Modeling & Result
+
+Model yang digunakan:
+
+* **Content-Based Filtering**: Menggunakan TF-IDF dan NearestNeighbors (cosine similarity).
+* **Output**:
+
+  * Untuk input *"The Secret Life of Bees"*, sistem memberikan 5 rekomendasi dengan kemiripan tinggi secara konten.
+* **Top-N Recommendation**:
+
+  * Disediakan dalam bentuk tabel hasil pemanggilan fungsi `recommend_books_nn()`.
+
+---
+
+## 8. Evaluation
+
+Evaluasi dilakukan dengan pendekatan berikut:
+
+* **Precision\@K** dan **Recall\@K**: Untuk menilai proporsi dan jangkauan relevansi rekomendasi.
+* **F1-Score\@K**: Kombinasi dari Precision dan Recall.
+* **MAP & NDCG**: Digunakan untuk mengukur kualitas ranking dan distribusi relevansi rekomendasi.
+
+### Skema Evaluasi:
+
+* Semua perhitungan dilakukan langsung melalui notebook.
+* Output model dibandingkan pada berbagai input judul untuk mengevaluasi konsistensi dan relevansi hasil.
+
+### Business Impact:
+
+* Sistem telah menjawab **problem statement** secara langsung.
+* Semua **goals** telah tercapai dengan keberhasilan model memberikan hasil Top-N rekomendasi yang relevan.
+* Dapat diterapkan pada skenario **cold-start** dan personalisasi berbasis konten.
+
+---
+
+## 9. Kesimpulan
+
+* Sistem rekomendasi dibangun dengan pendekatan Content-Based Filtering.
+* Telah dilakukan pembersihan, transformasi, dan deduplikasi data secara sistematis.
+* Output model diuji dan menghasilkan rekomendasi yang relevan secara tematik dan konten.
+* Evaluasi dilakukan dengan metrik rekomendasi modern.
+
+---
+
+## 10. Referensi
 
 * Dataset: [https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset)
 * Scikit-learn documentation: [https://scikit-learn.org](https://scikit-learn.org)
 * Medium Articles: berbagai referensi tentang sistem rekomendasi dengan Python
 * Dokumentasi resmi Pandas, Matplotlib, Seaborn, dan Surprise Library
 * Repositori Gambar & Kode: [https://github.com/im-dheyy/Sentimen-Analytic](https://github.com/im-dheyy/Sentimen-Analytic)
+
+
+---
+
