@@ -82,8 +82,31 @@ Dataset ini terdiri dari tiga bagian utama:
 
 ## 5. Exploratory Data Analysis (EDA)
 
-(Contoh visualisasi dan insight EDA tetap seperti sebelumnya)
+* Mayoritas rating buku adalah 0 (implicit rating), sehingga difokuskan pada rating eksplisit.
 
+![Distribusi Nilai Rating](https://github.com/im-dheyy/Sentimen-Analytic/raw/main/Gambar/distribusinilairating.png)
+
+### Distribusi Usia Pengguna
+
+* Mayoritas pengguna berada dalam rentang usia 20-40 tahun.
+* Visualisasi: [distribusiusiapengguna.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/distribusiusiapengguna.png)
+
+### Top 10 Buku Berdasarkan Popularitas Judul
+
+* Buku-buku populer terdeteksi melalui jumlah rating terbanyak.
+* Visualisasi: [top10bahasabukuterpopuler.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10bahasabukuterpopuler.png)
+
+### Top 10 Buku Berdasarkan Jumlah Rating
+
+* Daftar buku yang paling sering dirating.
+* Visualisasi: [top10bukudenganratingterbanyak.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10bukudenganratingterbanyak.png)
+
+### Top 10 Kategori Buku
+
+* Menunjukkan jenis kategori buku yang paling umum atau populer.
+* Visualisasi: [top10kategoribuku.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10kategoribuku.png)
+
+---
 ---
 
 ## 6. Data Preparation
