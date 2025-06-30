@@ -77,25 +77,25 @@ Langkah awal:
 ### 2. Buku dengan Rating Terbanyak
 
 * Buku seperti *Wild Animus*, *The Lovely Bones*, dan *The Da Vinci Code* paling banyak dirating.
-![Top 10 Buku dengan Rating Terbanyak](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10bukudenganratingterbanyak.png)
+![Top 10 Buku dengan Rating Terbanyak](https://github.com/im-dheyy/Sentimen-Analytic/raw/main/Gambar/top10bukudenganratingterbanyak.png)
 
 
 ### 3. Distribusi Usia Pengguna
 
 * Dominasi pengguna pada rentang usia 30–40 tahun.
-![Distribusi Usia Pengguna](https://github.com/im-dheyy/Sentimen-Analytic/main/Gambar/distribusiusiapengguna.png)
+![Distribusi Usia Pengguna](https://github.com/im-dheyy/Sentimen-Analytic/raw/main/Gambar/distribusiusiapengguna.png)
 
 ### 4. Bahasa Buku Terpopuler
 
 * Mayoritas buku berbahasa Inggris (`en`).
 * Terdapat nilai anomali seperti "9" pada kolom bahasa.
-![Top 10 Bahasa Buku Terpopuler](https://github.com/im-dheyy/Sentimen-Analytic/main/Gambar/top10bahasabukuterpopuler.png)
+![Top 10 Bahasa Buku Terpopuler](https://github.com/im-dheyy/Sentimen-Analytic/raw/main/Gambar/top10bahasabukuterpopuler.png)
 
 ### 5. Kategori Buku Terpopuler
 
 * Kategori "Fiction" mendominasi.
 * Diikuti oleh "Juvenile Fiction", "Biography", dll
-![Top 10 Kategori Buku](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10kategoribuku.png)
+![Top 10 Kategori Buku](https://github.com/im-dheyy/Sentimen-Analytic/blob/raw/main/Gambar/top10kategoribuku.png)
 
 ---
 
