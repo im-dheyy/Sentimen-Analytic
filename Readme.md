@@ -12,9 +12,12 @@
 
 ## 2. Proyek Overview
 
-Di era digital, informasi mengenai buku sangat melimpah. Meskipun hal ini memberikan banyak pilihan bagi pembaca, pada saat yang sama muncul tantangan besar dalam menemukan buku yang benar-benar relevan dengan minat dan preferensi masing-masing individu.
+Di era digital, informasi mengenai buku sangat melimpah. Meskipun hal ini memberikan banyak pilihan bagi pembaca, pada saat yang sama muncul tantangan besar dalam menemukan buku yang benar-benar relevan dengan minat dan preferensi masing-masing individu. Pengguna kerap mengalami kebingungan dalam menentukan pilihan, terutama ketika dihadapkan dengan ribuan judul buku yang tersedia secara online. Untuk mengatasi permasalahan ini, dibutuhkan sebuah sistem rekomendasi yang cerdas dan efisien, yang mampu menyarankan buku secara personal berdasarkan data dan perilaku pengguna sebelumnya.
+ 
+Book-Crossing Dataset, yang diperoleh dari komunitas Book-Crossing, menjadi salah satu sumber data yang ideal dalam membangun sistem seperti itu. Dataset ini mencakup lebih dari satu juta data interaksi pengguna berupa rating terhadap buku, serta dilengkapi metadata buku dan informasi dasar pengguna. Dengan struktur data yang lengkap, dataset ini sangat cocok untuk diterapkan pada berbagai pendekatan sistem rekomendasi, seperti content-based filtering, collaborative filtering, maupun pendekatan hybrid yang menggabungkan keduanya.
+ 
+Tujuan dari proyek ini adalah untuk membangun sistem rekomendasi buku yang mampu memberikan saran yang akurat dan personal kepada pengguna. Selain itu, proyek ini juga bertujuan untuk menerapkan dan membandingkan beberapa pendekatan sistem rekomendasi guna mengevaluasi efektivitas masing-masing metode. Melalui pemanfaatan data rating dan metadata buku, diharapkan sistem ini mampu mengidentifikasi pola preferensi pengguna serta membantu mereka dalam menemukan buku yang sesuai dengan minat mereka dengan lebih mudah dan efisien.
 
-Untuk mengatasi permasalahan ini, proyek ini membangun sebuah **sistem rekomendasi buku** berbasis data yang mampu menyarankan buku secara personal berdasarkan data perilaku dan preferensi pengguna sebelumnya.
 
 ---
 
@@ -22,45 +25,73 @@ Untuk mengatasi permasalahan ini, proyek ini membangun sebuah **sistem rekomenda
 
 Sistem rekomendasi buku dirancang untuk memberikan nilai tambah secara langsung kepada pengguna platform pembaca buku daring maupun toko buku digital.
 
-### Problem Statement:
+## 🔍 **Problem Statements**
+1. Banyak pengguna mengalami kesulitan dalam menemukan buku yang sesuai preferensinya karena belum tersedia sistem rekomendasi yang personal.
+2. Platform belum memanfaatkan data interaksi pengguna dan metadata buku secara optimal untuk menghasilkan rekomendasi.
+3. Belum dilakukan analisis mendalam terhadap data pengguna dan buku untuk memahami pola dan tren yang mendukung pengambilan keputusan sistem rekomendasi.
+ 
+ 
 
-* Pengguna kesulitan menemukan buku yang sesuai dengan minat mereka di tengah banyaknya pilihan.
-* Tidak adanya sistem rekomendasi yang mempertimbangkan konten dan preferensi eksplisit pengguna.
+## 🎯 **Goals**
+1. Mengembangkan sistem rekomendasi buku yang mampu menyarankan judul secara personal berdasarkan data pengguna dan metadata buku.
+2. Melakukan exploratory data analysis (EDA) untuk memahami struktur data, distribusi, dan hubungan antar variabel.
+3. Menerapkan algoritma content-based filtering untuk memberikan rekomendasi buku berdasarkan kemiripan fitur konten buku.
 
-### Goals:
-
-* Mengembangkan sistem yang dapat memberikan rekomendasi buku yang relevan berdasarkan preferensi pengguna.
-* Menyediakan solusi yang dapat diimplementasikan untuk cold-start user dan buku baru.
-* Meningkatkan keterlibatan pengguna melalui personalisasi.
-
-### Solution Statement:
-
-* Mengimplementasikan pendekatan Content-Based Filtering berbasis konten buku seperti ringkasan, judul, kategori, dan penerbit.
-* Menyediakan output rekomendasi yang dapat divisualisasikan dan dievaluasi menggunakan metrik yang sesuai seperti Precision\@K dan Recall\@K untuk mencakup berbagai skenario pengguna.
+## 🛠️ **Solution Approach**
+1. Melakukan Exploratory Data Analysis (EDA) untuk memahami distribusi data, mendeteksi anomali, serta mengeksplorasi pola interaksi pengguna dan karakteristik buku melalui visualisasi.
+ 
+2. Membangun sistem content-based filtering dengan memanfaatkan metadata buku (judul, penulis, penerbit) dan menghitung tingkat kesamaan antar buku menggunakan algoritma cosine similarity.
+ 
 
 ---
 
 ## 4. Data Understanding
 
-Dataset ini terdiri dari tiga bagian utama:
+Dataset ini terdiri dari tiga bagian utama dan satu yang sudah di-proses menjadi satu:
 
-| File        | Jumlah Baris | Jumlah Kolom | Link Download                                                             |
-| ----------- | ------------ | ------------ | ------------------------------------------------------------------------- |
-| Books.csv   | 271.379      | 8            | [Download](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset) |
-| Users.csv   | 278.858      | 3            | [Download](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset) |
-| Ratings.csv | 1.031.175    | 3            | [Download](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset) |
+| File               | Jumlah Baris | Jumlah Kolom | Link Download                                                             |
+| -----------        | ------------ | ------------ | ------------------------------------------------------------------------- |
+| Books.csv          | 271.379      | 8            | [Download](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset) |
+| Users.csv          | 278.858      | 3            | [Download](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset) |
+| Ratings.csv        | 1.031.175    | 3            | [Download](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset) |
+
+| Processed_data.csv | 1.031.175    | 19           | [Download](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset) |
+
+Dataset Processed_data.csv digunakan karena sudah lengkap
 
 ### Ringkasan Permasalahan Kualitas Data:
+* **Fitur :**
+| **Nama Variabel**     | **Tipe Data** | **Deskripsi**                                                               |
+| --------------------- | ------------- | --------------------------------------------------------------------------- |
+| `Unnamed: 0`          | integer       | Indeks baris otomatis dari proses sebelumnya (dapat diabaikan atau dihapus) |
+| `user_id`             | integer       | ID unik dari pengguna yang memberikan rating                                |
+| `location`            | string        | Lokasi pengguna dalam format `kota, provinsi, negara`                       |
+| `age`                 | float         | Usia pengguna                                                               |
+| `isbn`                | string        | Nomor identifikasi unik buku (International Standard Book Number)           |
+| `rating`              | float/integer | Nilai rating yang diberikan pengguna terhadap buku (biasanya dari 0–10)     |
+| `book_title`          | string        | Judul buku                                                                  |
+| `book_author`         | string        | Nama penulis buku                                                           |
+| `year_of_publication` | float/integer | Tahun penerbitan buku                                                       |
+| `publisher`           | string        | Nama penerbit buku                                                          |
+| `img_s`               | string (URL)  | URL gambar sampul buku ukuran kecil                                         |
+| `img_m`               | string (URL)  | URL gambar sampul buku ukuran sedang                                        |
+| `img_l`               | string (URL)  | URL gambar sampul buku ukuran besar                                         |
+| `Summary`             | string        | Ringkasan atau sinopsis dari isi buku                                       |
+| `Language`            | string        | Bahasa dari isi buku (contoh: `en` untuk English, `fr` untuk French)        |
+| `Category`            | string/list   | Kategori atau genre buku (dalam format list/array teks)                     |
 
+
+* Kode tersebut menghapus kolom `Unnamed: 0` yang tidak dibutuhkan karena biasanya itu hanya duplikat index dari file CSV.
+  
 * **Missing Values**:
 
-  * Kolom usia pada `Users.csv` dan tahun terbit pada `Books.csv` memiliki nilai kosong.
+  * Kolom usia dan tahun terbit pada memiliki nilai kosong.
 * **Outliers**:
 
   * Usia di bawah 5 dan di atas 100 tahun dihapus.
 * **Duplikasi**:
 
-  * Duplikasi ditemukan dan dihapus berdasarkan kombinasi `book_title`, `publisher`, dan `summary`.
+  * Duplikasi ditemukan dan dihapus berdasarkan kombinasi `book_author`, `city`, `state`, dan `country`.
 * **Invalid Entries**:
 
   * Entri bahasa bertanda '9' dianggap noise dan dihapus.
@@ -104,7 +135,7 @@ Dataset ini terdiri dari tiga bagian utama:
 ### Top 10 Kategori Buku
 
 * Menunjukkan jenis kategori buku yang paling umum atau populer.
-* [Top 10 Kategori Buku](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10kategoribuku.png)
+* ! [Top 10 Kategori Buku](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10kategoribuku.png)
 
 ---
 
