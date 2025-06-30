@@ -1,63 +1,144 @@
-## 📌 Laporan Proyek: Sistem Rekomendasi Buku
+# 📄 Laporan Proyek: Sistem Rekomendasi Buku
 
-### Project Overview
+## 1. Judul & Identitas
 
-Sistem rekomendasi buku berbasis konten (content-based filtering) dikembangkan untuk membantu pengguna menemukan buku-buku yang mirip dengan preferensi mereka berdasarkan deskripsi buku, kategori, judul, dan penerbit. Sistem ini tidak bergantung pada rating pengguna lain, sehingga cocok digunakan untuk kondisi cold-start atau ketika data rating sangat terbatas.
+**Judul:** Book Recommendation System
+**Nama:** Deawi Guna Pratiwi
+**Email:** [deawigunapratiwi@gmail.com](mailto:deawigunapratiwi@gmail.com)
+**Sumber Dataset:** [Book-Crossing: User review ratings - Kaggle](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset)
+**Jumlah data:** 1.031.175 baris data
 
-### Business Understanding
+---
 
-Permasalahan yang ingin diselesaikan adalah bagaimana menyarankan buku yang relevan kepada pengguna meskipun tidak memiliki histori rating pengguna lain. Tujuannya adalah meningkatkan pengalaman pengguna dalam menjelajahi koleksi buku, serta mendorong eksplorasi buku-buku serupa yang mungkin belum pernah dibaca sebelumnya.
+## 2. Proyek Overview
 
-### Data Understanding
+Di era digital, informasi mengenai buku sangat melimpah. Meskipun hal ini memberikan banyak pilihan bagi pembaca, pada saat yang sama muncul tantangan besar dalam menemukan buku yang benar-benar relevan dengan minat dan preferensi masing-masing individu.
 
-Dataset yang digunakan merupakan hasil penggabungan dari beberapa atribut buku seperti:
+Untuk mengatasi permasalahan ini, proyek ini membangun sebuah **sistem rekomendasi buku** berbasis data yang mampu menyarankan buku secara personal berdasarkan data perilaku dan preferensi pengguna sebelumnya.
 
-* Judul buku (`book_title`)
-* Ringkasan buku (`Summary`)
-* Kategori buku (`Category`)
-* Nama penerbit (`publisher`)
+---
 
-Data ini memiliki lebih dari 1 juta entri yang mencakup informasi pengguna, lokasi, buku, dan metadata lainnya. Fokus utama sistem rekomendasi berada pada konten dari masing-masing buku.
+## 3. Business Understanding
 
-### Data Preparation
+Tujuan bisnis dari proyek ini adalah:
 
-1. **Pembersihan Data**:
+* Membantu pengguna menemukan buku yang relevan dan sesuai minat.
+* Meningkatkan pengalaman pengguna dalam menjelajahi koleksi buku.
+* Meningkatkan interaksi dan engagement pengguna terhadap platform penyedia buku.
 
-   * Menghapus entri dengan ringkasan tidak valid (misal hanya "9")
-   * Menghapus entri dengan kategori kosong (`[]`)
-   * Menghapus ringkasan dengan panjang kurang dari 30 karakter
-   * Menghapus duplikasi berdasarkan kombinasi `book_title`, `publisher`, dan `Summary`
+### Problem Statements:
 
-2. **Penggabungan Fitur**:
+* Bagaimana menyusun sistem rekomendasi berdasarkan minat pengguna?
+* Apa pendekatan terbaik antara content-based dan collaborative filtering?
 
-   * Membuat kolom `combined` yang terdiri dari gabungan `Summary`, `Category`, `book_title`, dan `publisher`
+---
 
-3. **Transformasi TF-IDF**:
+## 4. Data Understanding
 
-   * Data dalam kolom `combined` diubah menjadi representasi numerik menggunakan TF-IDF Vectorizer.
+Dataset yang digunakan memiliki 3 bagian utama:
 
-4. **Pemetaan Judul**:
+* **Books.csv**: informasi tentang buku (ISBN, judul, penulis, publisher, tahun terbit, dll).
+* **Users.csv**: data tentang pengguna (user id, lokasi, usia).
+* **Ratings.csv**: berisi rating pengguna terhadap buku (user id, ISBN, rating).
 
-   * Dibuat pemetaan antara judul buku dan indeks baris untuk akses cepat saat melakukan rekomendasi.
+### Ringkasan:
 
-### Modelling and Result
+* Jumlah pengguna: 278.858
+* Jumlah buku: 271.379
+* Jumlah rating: 1.031.175
 
-* Model `NearestNeighbors` dari `sklearn` digunakan untuk menghitung kemiripan antar buku berdasarkan cosine similarity dari vektor TF-IDF.
-* Sistem menerima input berupa judul buku, lalu mencari 5 buku paling mirip (selain dirinya sendiri) berdasarkan representasi kontennya.
-* Contoh hasil rekomendasi menunjukkan bahwa sistem mampu menyarankan buku-buku yang memiliki tema, kategori, dan gaya narasi yang serupa.
+Data perlu dibersihkan dari nilai yang hilang, tidak relevan, dan hanya mempertimbangkan rating eksplisit (> 0).
 
-### Evaluation
+---
 
-* Evaluasi dilakukan dengan cara observasi terhadap hasil rekomendasi dari beberapa input judul buku.
-* Sistem berhasil menyarankan judul lain dengan genre dan tema yang konsisten.
-* Sistem terbukti efektif menangani kasus cold-start, karena tidak membutuhkan data rating dari pengguna lain.
+## 5. Exploratory Data Analysis (EDA)
 
-### Struktur Laporan
+EDA dilakukan untuk memahami karakteristik data, mendeteksi pola, dan anomali. Visualisasi dibuat untuk memberikan insight yang lebih mendalam terhadap distribusi data.
 
-1. **Project Overview**: Deskripsi umum proyek dan tujuannya
-2. **Business Understanding**: Latar belakang bisnis dan objektif sistem rekomendasi
-3. **Data Understanding**: Informasi mengenai struktur dan isi data yang digunakan
-4. **Data Preparation**: Langkah-langkah pra-pemrosesan dan pembersihan data
-5. **Modelling and Result**: Penjelasan algoritma yang digunakan dan hasil yang diperoleh
-6. **Evaluation**: Penilaian hasil sistem dan validitas rekomendasi
-7. **Kesimpulan dan Saran** (opsional): Insight akhir dari proyek dan saran pengembangan lanjut
+### Distribusi Rating Buku
+
+* Mayoritas rating buku adalah 0 (implicit rating), sehingga difokuskan pada rating eksplisit.
+
+![Distribusi Nilai Rating](https://github.com/im-dheyy/Sentimen-Analytic/raw/main/Gambar/distribusinilairating.png)
+
+### Distribusi Usia Pengguna
+
+* Mayoritas pengguna berada dalam rentang usia 20-40 tahun.
+* Visualisasi: [distribusiusiapengguna.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/distribusiusiapengguna.png)
+
+### Top 10 Buku Berdasarkan Popularitas Judul
+
+* Buku-buku populer terdeteksi melalui jumlah rating terbanyak.
+* Visualisasi: [top10bahasabukuterpopuler.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10bahasabukuterpopuler.png)
+
+### Top 10 Buku Berdasarkan Jumlah Rating
+
+* Daftar buku yang paling sering dirating.
+* Visualisasi: [top10bukudenganratingterbanyak.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10bukudenganratingterbanyak.png)
+
+### Top 10 Kategori Buku
+
+* Menunjukkan jenis kategori buku yang paling umum atau populer.
+* Visualisasi: [top10kategoribuku.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10kategoribuku.png)
+
+---
+
+## 6. Content-Based Filtering
+
+Sistem rekomendasi berbasis konten bekerja dengan menganalisis metadata buku (judul, penulis, publisher).
+
+### Langkah-langkah:
+
+* Menggabungkan kolom judul, penulis, dan penerbit menjadi satu string deskripsi.
+* Mengubah teks menjadi vektor numerik dengan TF-IDF Vectorizer.
+* Menghitung kemiripan antar buku dengan cosine similarity.
+* Memberikan rekomendasi buku berdasarkan input judul buku yang mirip secara konten.
+
+### Contoh Output:
+
+Jika pengguna menyukai "The Da Vinci Code", maka sistem merekomendasikan buku seperti:
+
+* Angels & Demons
+* Deception Point
+* Digital Fortress
+
+---
+
+## 7. Collaborative Filtering
+
+### a. KNN (K-Nearest Neighbors)
+
+* Dataset disiapkan dalam bentuk matriks user-item.
+* Digunakan algoritma KNN dengan cosine similarity.
+* Model menemukan buku yang mirip berdasarkan perilaku rating pengguna lain.
+
+### b. Cosine Similarity
+
+* Dibuat matriks pivot dari rating eksplisit.
+* Hitung kemiripan antar item berdasarkan rating.
+* Output rekomendasi berdasarkan buku yang diberi rating tinggi oleh pengguna.
+
+### Contoh Output:
+
+Jika pengguna memberi rating tinggi ke "Harry Potter and the Sorcerer's Stone", sistem akan merekomendasikan buku serupa yang juga disukai pengguna lain.
+
+---
+
+## 8. Kesimpulan
+
+* Sistem rekomendasi yang dibangun mengombinasikan dua pendekatan utama: content-based dan collaborative filtering.
+* Content-based cocok untuk pengguna baru atau buku baru (cold-start problem).
+* Collaborative filtering menghasilkan rekomendasi yang lebih personal berdasarkan perilaku kolektif pengguna.
+* Kualitas rekomendasi bergantung pada kualitas dan kelengkapan data.
+
+Proyek ini menunjukkan bagaimana pendekatan machine learning dan NLP dapat digunakan untuk menyelesaikan permasalahan nyata dalam domain literasi dan perbukuan.
+
+---
+
+## 9. Referensi
+
+* Dataset: [https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset](https://www.kaggle.com/datasets/ruchi798/bookcrossing-dataset)
+* Scikit-learn documentation: [https://scikit-learn.org](https://scikit-learn.org)
+* Medium Articles: berbagai referensi tentang sistem rekomendasi dengan Python
+* Dokumentasi resmi Pandas, Matplotlib, Seaborn, dan Surprise Library
+* Repositori Gambar & Kode: [https://github.com/im-dheyy/Sentimen-Analytic](https://github.com/im-dheyy/Sentimen-Analytic)
