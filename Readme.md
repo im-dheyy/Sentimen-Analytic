@@ -89,24 +89,23 @@ Dataset ini terdiri dari tiga bagian utama:
 ### Distribusi Usia Pengguna
 
 * Mayoritas pengguna berada dalam rentang usia 20-40 tahun.
-* Visualisasi: [distribusiusiapengguna.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/distribusiusiapengguna.png)
+* ![Distribusi Usia Pengguna](https://github.com/im-dheyy/Sentimen-Analytic/main/Gambar/distribusiusiapengguna.png)
 
 ### Top 10 Buku Berdasarkan Popularitas Judul
 
 * Buku-buku populer terdeteksi melalui jumlah rating terbanyak.
-* Visualisasi: [top10bahasabukuterpopuler.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10bahasabukuterpopuler.png)
+* [Top 10 Bahasa Buku Terpopuler](https://github.com/im-dheyy/Sentimen-Analytic/main/Gambar/top10bahasabukuterpopuler.png)
 
 ### Top 10 Buku Berdasarkan Jumlah Rating
 
 * Daftar buku yang paling sering dirating.
-* Visualisasi: [top10bukudenganratingterbanyak.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10bukudenganratingterbanyak.png)
+* ![Top 10 Buku dengan Rating Terbanyak](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10bukudenganratingterbanyak.png)
 
 ### Top 10 Kategori Buku
 
 * Menunjukkan jenis kategori buku yang paling umum atau populer.
-* Visualisasi: [top10kategoribuku.png](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10kategoribuku.png)
+* [Top 10 Kategori Buku](https://github.com/im-dheyy/Sentimen-Analytic/blob/main/Gambar/top10kategoribuku.png)
 
----
 ---
 
 ## 6. Data Preparation
